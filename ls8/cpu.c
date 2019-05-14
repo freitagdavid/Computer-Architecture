@@ -45,53 +45,43 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA,
 /**
  * Run the CPU
  */
-void cpu_ram_read(struct cpu *cpu) { cpu->MDR = cpu->ram[(int)cpu->MAR]; }
+void cpu_ram_read(struct cpu *cpu) { cpu->MDR = cpu->ram[cpu->MAR]; }
 
-void cpu_ram_write(struct cpu *cpu, int address, unsigned char write_data) {
-  cpu->ram[address] = cpu->MDR;
-}
-
-void cpu_register_write(struct cpu *cpu, unsigned char *destination,
-                        unsigned char *source) {
-  cpu->MAR = source;
-  cpu_ram_read(cpu);
-  cpu->registers[(int)destination] = cpu->MDR;
-}
+void cpu_ram_write(struct cpu *cpu) { cpu->ram[cpu->MAR] = cpu->MDR; }
 
 void cpu_run(struct cpu *cpu) {
   int running = 1; // True until we get a HLT instruction
-  unsigned char *operandA;
-  unsigned char *operandB;
+  unsigned char operandA;
+  unsigned char operandB;
   while (running) {
-    cpu->IR = cpu->ram[(int)cpu->PC];
-    printf("cpu->PC: %u \n", (unsigned char)cpu->PC);
-    printf("cpu->IR: %u \n", (unsigned char)cpu->IR);
-    // memcpy(cpu->IR, cpu->PC, 1);
-
-    if ((int)cpu->IR >= 64) {
-      operandA = cpu->ram[(unsigned char)cpu->IR + 1];
-      cpu->PC += 2;
+    cpu->IR = cpu->ram[cpu->PC];
+    if (cpu->IR >= 64) {
+      cpu->MAR = cpu->PC + 1;
+      cpu_ram_read(cpu);
+      operandA = cpu->MDR;
+      cpu->PC += 1;
     } else {
       cpu->PC++;
     }
-    printf("cpu->PC: %u \n", (unsigned char)cpu->PC);
-    printf("cpu->IR: %u \n", (unsigned char)cpu->IR);
-    if ((int)cpu->IR >= 128) {
-      operandB = cpu->IR + 2;
-      cpu->PC++;
+    if (cpu->IR >= 128) {
+      cpu->MAR = cpu->PC + 1;
+      cpu_ram_read(cpu);
+      operandB = cpu->MDR;
+      cpu->PC += 1;
     }
-    printf("cpu->PC: %u \n", (unsigned char)cpu->PC);
-    printf("cpu->IR: %u \n", (unsigned char)cpu->IR);
-    switch ((unsigned char)cpu->IR) {
+    switch (cpu->IR) {
     case LDI:
-      printf("OperandA: %d \n", *operandA);
-      printf("OperandB: %u \n", operandB);
-      cpu_register_write(cpu, operandA, operandB);
-      printf("cpu->registers[0]: %u", cpu->registers[0]);
-      exit(0);
+      cpu->registers[operandA] = operandB;
+      cpu->PC++;
+      // cpu_register_write(cpu, operandA, operandB);
+      break;
+    case PRN:
+      printf("%d", cpu->registers[operandA]);
+      cpu->PC++;
       break;
     case HLT:
-      exit(0);
+      running = 0;
+      break;
     }
 
     // TODO
@@ -109,15 +99,13 @@ void cpu_run(struct cpu *cpu) {
  * Initialize a CPU struct
  */
 void cpu_init(struct cpu *cpu) {
-  cpu = (struct cpu *)malloc(sizeof(struct cpu));
-  cpu->PC = malloc(sizeof(unsigned char));
-  cpu->IR = malloc(sizeof(unsigned char));
-  memset(cpu->ram, 0, sizeof(cpu->ram));
-  memset(cpu->registers, 0, sizeof(cpu->registers));
+  // cpu = (struct cpu *)malloc(sizeof(struct cpu));
+  // cpu = calloc(0, sizeof(struct cpu));
+  memset(cpu->ram, 0, 256 * sizeof(unsigned char));
   cpu->registers[7] = 0xF4;
   cpu->PC = 0;
-  cpu->FL = 0;
   cpu->IR = 0;
   cpu->MAR = 0;
   cpu->MDR = 0;
+  cpu->FL = 0;
 }

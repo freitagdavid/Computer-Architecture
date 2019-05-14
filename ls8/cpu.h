@@ -6,8 +6,8 @@
 struct cpu {
   unsigned char registers[8];
   unsigned char ram[256];
-  unsigned char *PC;
-  unsigned char *IR;
+  unsigned char PC;
+  unsigned char IR;
   unsigned char MAR;
   unsigned char MDR;
   unsigned char FL;

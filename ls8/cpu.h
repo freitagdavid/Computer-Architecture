@@ -11,6 +11,7 @@ struct cpu {
   unsigned char MAR;
   unsigned char MDR;
   unsigned char FL;
+  unsigned char SP;
 };
 
 // ALU operations
@@ -28,6 +29,7 @@ enum alu_op {
 #define HLT 0b00000001
 #define PRN 0b01000111
 #define MUL 0b10100010
+#define PUSH 0b01000101
 // TODO: more instructions here. These can be used in cpu_run().
 
 // Function declarations

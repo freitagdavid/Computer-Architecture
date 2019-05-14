@@ -2,30 +2,29 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#define DATA_LEN 6
-typedef unsigned char *block;
+#include <unistd.h>
 
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu) {
-  char data[DATA_LEN] = {
-      // From print8.ls8
-      0b10000010, // LDI R0,8
-      0b00000000, 0b00001000,
-      0b01000111, // PRN R0
-      0b00000000,
-      0b00000001 // HLT
-  };
-
-  int address = 0;
-
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
+void cpu_load(struct cpu *cpu, int num_args, char *file_name) {
+  if (num_args != 2) {
+    printf("usage: ls8 <rom_file>.ls8");
+    exit(1);
   }
+  FILE *file = fopen(file_name, "r");
+  char *c;
 
-  // TODO: Replace this with something less hard-coded
+  while (1) {
+    fgets(c, sizeof(char) * 30, file);
+    if (feof(file)) {
+      break;
+    }
+    char *endptr;
+    cpu->ram[cpu->PC] = (unsigned char)strtol(c, endptr, 2);
+    cpu->PC++;
+  }
+  cpu->PC = 0;
 }
 
 /**
@@ -35,10 +34,8 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA,
          unsigned char regB) {
   switch (op) {
   case ALU_MUL:
-    // TODO
+    cpu->registers[regA] = cpu->registers[regA] * cpu->registers[regB];
     break;
-
-    // TODO: implement more ALU ops
   }
 }
 
@@ -73,10 +70,13 @@ void cpu_run(struct cpu *cpu) {
     case LDI:
       cpu->registers[operandA] = operandB;
       cpu->PC++;
-      // cpu_register_write(cpu, operandA, operandB);
       break;
     case PRN:
       printf("%d", cpu->registers[operandA]);
+      cpu->PC++;
+      break;
+    case MUL:
+      alu(cpu, ALU_MUL, operandA, operandB);
       cpu->PC++;
       break;
     case HLT:
@@ -99,9 +99,8 @@ void cpu_run(struct cpu *cpu) {
  * Initialize a CPU struct
  */
 void cpu_init(struct cpu *cpu) {
-  // cpu = (struct cpu *)malloc(sizeof(struct cpu));
-  // cpu = calloc(0, sizeof(struct cpu));
   memset(cpu->ram, 0, 256 * sizeof(unsigned char));
+  memset(cpu->registers, 0, sizeof(cpu->registers));
   cpu->registers[7] = 0xF4;
   cpu->PC = 0;
   cpu->IR = 0;

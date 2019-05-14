@@ -54,12 +54,4 @@ Module.symvers
 Mkfile.old
 dkms.conf
 .history
-.vscode/ipch/1e578fb46ec9cbb6/mmap_address.bin
-.vscode/ipch/609862c617ccc0cb/mmap_address.bin
-.vscode/ipch/1e578fb46ec9cbb6/ls8.ipch
-.vscode/ipch/5ccf98b165d2761f/malloc.ipch
-.vscode/ipch/5ccf98b165d2761f/mmap_address.bin
-.vscode/ipch/609862c617ccc0cb/cpu.ipch
-.vscode/ipch/8c39ffb8c1d70712/mmap_address.bin
-.vscode/ipch/b1c227de3c8637b9/mmap_address.bin
-.vscode/ipch/b1c227de3c8637b9/structs.ipch
+.vscode

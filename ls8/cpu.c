@@ -27,6 +27,13 @@ void cpu_load(struct cpu *cpu, int num_args, char *file_name) {
   cpu->PC = 0;
 }
 
+
+
+// void handle_PUSH(struct cpu *cpu, unsigned char operandA, unsigned char operandB) {
+
+// }
+
+
 /**
  * ALU
  */
@@ -35,6 +42,9 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA,
   switch (op) {
   case ALU_MUL:
     cpu->registers[regA] = cpu->registers[regA] * cpu->registers[regB];
+    break;
+  case ALU_ADD:
+    regA += regB;
     break;
   }
 }
@@ -48,7 +58,60 @@ int cpu_ram_read(struct cpu *cpu, int source) {
 
 void cpu_ram_write(struct cpu *cpu, int destination, int source) { cpu->ram[destination] = source; }
 
+void ldi(struct cpu *cpu, unsigned char operandA, unsigned char operandB) {
+  cpu->registers[operandA] = operandB;
+}
+
+void prn(struct cpu *cpu, unsigned char operandA) {
+  printf("%d", cpu->registers[operandA]);
+}
+
+void push(struct cpu *cpu, unsigned char operandA, unsigned char operandB) {
+  cpu->SP -= 1;
+  cpu->ram[cpu->SP] = cpu->registers[operandA];
+}
+
+void mul(struct cpu *cpu, unsigned char operandA, unsigned char operandB) {
+  alu(cpu, ALU_MUL, operandA, operandB);
+}
+
+void pop(struct cpu *cpu, unsigned char operandA, unsigned char operandB) {
+  cpu->registers[operandA] = cpu_ram_read(cpu, cpu->SP);
+  cpu->SP += 1;
+}
+
+void call(struct cpu *cpu, unsigned char operandA, unsigned char operandB) {
+  cpu->SP -= 1;
+  cpu->ram[cpu->SP] = cpu->PC;
+  cpu->PC = cpu->registers[operandA];
+}
+
+void ret(struct cpu *cpu, unsigned char operandA, unsigned char operandB) {
+  cpu->PC = cpu->ram[cpu->SP];
+  cpu->SP += 1;
+}
+
+void add(struct cpu *cpu, unsigned char operandA, unsigned char operandB) {
+  alu(cpu, ALU_ADD, operandA, operandB);
+}
+
 void cpu_run(struct cpu *cpu) {
+  // op *handle_ops[36] = {
+  //   ldi,
+  //   prn,
+  //   push,
+  //   mul
+  // };
+  void (*op[35])(struct cpu *cpu, unsigned char operandA, unsigned char operandB) = {
+    ldi,
+    prn,
+    mul,
+    push,
+    pop,
+    call,
+    ret,
+    add
+  };
   int running = 1;
   unsigned char operandA;
   unsigned char operandB;
@@ -65,25 +128,28 @@ void cpu_run(struct cpu *cpu) {
     cpu->PC += new_pc;
     switch (cpu->IR) {
     case LDI:
-      cpu->registers[operandA] = operandB;
-      printf("LDI(R%d, %d)\n", operandA, operandB);
+      op[0](cpu, operandA, operandB);
       break;
     case PRN:
-      printf("%d", cpu->registers[operandA]);
+      op[1](cpu, operandA, operandB);
       break;
     case MUL:
-      alu(cpu, ALU_MUL, operandA, operandB);
-      printf("MUL(R%d, R%d)\n", operandA, operandB);
+      op[2](cpu, operandA, operandB);
       break;
     case PUSH:
-      cpu->SP -= 1;
-      cpu->ram[cpu->SP] = cpu->registers[operandA];
-      printf("PUSH(R%d)\n", operandA, operandB);
+      op[3](cpu, operandA, operandB);
       break;
     case POP:
-      cpu->registers[operandA] = cpu_ram_read(cpu, cpu->SP);
-      cpu->SP += 1;
-      printf("POP(R%d)\n", operandA, operandB);
+      op[4](cpu, operandA, operandB);
+      break;
+    case CALL:
+      op[5](cpu, operandA, operandB);
+      break;
+    case RET:
+      op[6](cpu, operandA, operandB);
+      break;
+    case ADD:
+      op[7](cpu, operandA, operandB);
       break;
     case HLT:
       running = 0;
@@ -91,6 +157,9 @@ void cpu_run(struct cpu *cpu) {
     }
   }
 }
+
+
+
 
 /**
  * Initialize a CPU struct

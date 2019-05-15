@@ -18,7 +18,9 @@ struct cpu {
 enum alu_op {
   ALU_MUL,
   ALU_ADD,
-  ALU_AND
+  ALU_AND,
+  ALU_CMP,
+  ALU_DEC
   // Add more here
 };
 
@@ -28,16 +30,19 @@ enum alu_op {
 // literals should be used.
 typedef void op(struct cpu *cpu, unsigned char operandA, unsigned char operandB);
 
-#define LDI 0b10000010
-#define HLT 0b00000001
-#define PRN 0b01000111
-#define MUL 0b10100010
-#define PUSH 0b01000101
-#define POP 0b01000110
+#define ADD  0b10100000
+#define AND  0b10101000
 #define CALL 0b01010000
-#define RET 0b00010001
-#define ADD 0b10100000
-#define AND 0b10101000
+#define CMP  0b10100111
+#define DEC  0b01100110
+#define HLT  0b00000001
+#define LDI  0b10000010
+#define MUL  0b10100010
+#define POP  0b01000110
+#define PRN  0b01000111
+#define PUSH 0b01000101
+#define RET  0b00010001
+
 // TODO: more instructions here. These can be used in cpu_run().
 
 // Function declarations

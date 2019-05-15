@@ -50,6 +50,8 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA,
     if (cpu->registers[regA] == cpu->registers[regB]) {
       cpu->FL = cpu->FL | 0b00000001;
     }
+  case ALU_DEC:
+    cpu->registers[regA]--;
   }
 }
 
@@ -107,6 +109,10 @@ void cmp(struct cpu *cpu, unsigned char operandA, unsigned char operandB) {
   alu(cpu, ALU_CMP, operandA, operandB);
 }
 
+void dec(struct cpu *cpu, unsigned char operandA, unsigned char operandB) {
+  alu(cpu, ALU_CMP, operandA, operandB);
+}
+
 void cpu_run(struct cpu *cpu) {
   // op *handle_ops[36] = {
   //   ldi,
@@ -123,7 +129,8 @@ void cpu_run(struct cpu *cpu) {
     call,
     ret,
     add,
-    and
+    and,
+    dec
   };
   int running = 1;
   unsigned char operandA;
@@ -166,6 +173,10 @@ void cpu_run(struct cpu *cpu) {
       break;
     case AND:
       op[8](cpu, operandA, operandB);
+      break;
+    case DEC:
+      op[9](cpu, operandA, operandB);
+      break;
     case HLT:
       running = 0;
       break;

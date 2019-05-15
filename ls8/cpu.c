@@ -49,7 +49,7 @@ int cpu_ram_read(struct cpu *cpu, int source) {
 void cpu_ram_write(struct cpu *cpu, int destination, int source) { cpu->ram[destination] = source; }
 
 void cpu_run(struct cpu *cpu) {
-  int running = 1; // True until we get a HLT instruction
+  int running = 1;
   unsigned char operandA;
   unsigned char operandB;
 
@@ -58,7 +58,6 @@ void cpu_run(struct cpu *cpu) {
     int new_pc = ((cpu->IR >> 6) & 0b11) + 1;
     if (cpu->IR >= 64) {
       operandA = cpu_ram_read(cpu, cpu->PC + 1);
-    } else {
     }
     if (cpu->IR >= 128) {
       operandB = cpu_ram_read(cpu, cpu->PC + 2);
@@ -67,16 +66,25 @@ void cpu_run(struct cpu *cpu) {
     switch (cpu->IR) {
     case LDI:
       cpu->registers[operandA] = operandB;
+      printf("LDI(R%d, %d)\n", operandA, operandB);
       break;
     case PRN:
       printf("%d", cpu->registers[operandA]);
       break;
     case MUL:
       alu(cpu, ALU_MUL, operandA, operandB);
+      printf("MUL(R%d, R%d)\n", operandA, operandB);
       break;
     case PUSH:
-      cpu->SP--;
+      cpu->SP -= 1;
       cpu->ram[cpu->SP] = cpu->registers[operandA];
+      printf("PUSH(R%d)\n", operandA, operandB);
+      break;
+    case POP:
+      cpu->registers[operandA] = cpu_ram_read(cpu, cpu->SP);
+      cpu->SP += 1;
+      printf("POP(R%d)\n", operandA, operandB);
+      break;
     case HLT:
       running = 0;
       break;

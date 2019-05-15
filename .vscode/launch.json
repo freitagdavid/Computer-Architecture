@@ -9,7 +9,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${fileDirname}/ls8",
-            "args": ["./examples/mult.ls8"],
+            "args": ["./examples/stack.ls8"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/ls8",
             "environment": [],

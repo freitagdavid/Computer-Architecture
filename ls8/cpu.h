@@ -17,7 +17,8 @@ struct cpu {
 // ALU operations
 enum alu_op {
   ALU_MUL,
-  ALU_ADD
+  ALU_ADD,
+  ALU_AND
   // Add more here
 };
 
@@ -36,6 +37,7 @@ typedef void op(struct cpu *cpu, unsigned char operandA, unsigned char operandB)
 #define CALL 0b01010000
 #define RET 0b00010001
 #define ADD 0b10100000
+#define AND 0b10101000
 // TODO: more instructions here. These can be used in cpu_run().
 
 // Function declarations

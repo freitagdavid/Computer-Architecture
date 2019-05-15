@@ -95,6 +95,10 @@ void add(struct cpu *cpu, unsigned char operandA, unsigned char operandB) {
   alu(cpu, ALU_ADD, operandA, operandB);
 }
 
+void and(struct cpu *cpu, unsigned char operandA, unsigned char operandB) {
+  cpu->registers[operandA] = cpu->registers[operandA] & cpu->registers[operandB];
+}
+
 void cpu_run(struct cpu *cpu) {
   // op *handle_ops[36] = {
   //   ldi,
@@ -110,7 +114,8 @@ void cpu_run(struct cpu *cpu) {
     pop,
     call,
     ret,
-    add
+    add,
+    and
   };
   int running = 1;
   unsigned char operandA;
@@ -151,6 +156,8 @@ void cpu_run(struct cpu *cpu) {
     case ADD:
       op[7](cpu, operandA, operandB);
       break;
+    case AND:
+      op[8](cpu, operandA, operandB);
     case HLT:
       running = 0;
       break;

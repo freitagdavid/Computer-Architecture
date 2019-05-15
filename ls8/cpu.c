@@ -46,6 +46,10 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA,
   case ALU_ADD:
     regA += regB;
     break;
+  case ALU_CMP:
+    if (cpu->registers[regA] == cpu->registers[regB]) {
+      cpu->FL = cpu->FL | 0b00000001;
+    }
   }
 }
 
@@ -97,6 +101,10 @@ void add(struct cpu *cpu, unsigned char operandA, unsigned char operandB) {
 
 void and(struct cpu *cpu, unsigned char operandA, unsigned char operandB) {
   cpu->registers[operandA] = cpu->registers[operandA] & cpu->registers[operandB];
+}
+
+void cmp(struct cpu *cpu, unsigned char operandA, unsigned char operandB) {
+  alu(cpu, ALU_CMP, operandA, operandB);
 }
 
 void cpu_run(struct cpu *cpu) {
